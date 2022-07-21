@@ -1,0 +1,1751 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://nickhuangcyh.github.io/blog/feed.xml" rel="self" type="application/atom+xml" /><link href="https://nickhuangcyh.github.io/blog/" rel="alternate" type="text/html" /><updated>2022-07-21T02:29:36+00:00</updated><id>https://nickhuangcyh.github.io/blog/feed.xml</id><title type="html">Nick’s Blog</title><subtitle>An amazing website.</subtitle><author><name>Nick Huang</name></author><entry><title type="html">Design Pattern 系列 (6) - Abstract Factory Pattern</title><link href="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-6-abstract-factory-pattern/" rel="alternate" type="text/html" title="Design Pattern 系列 (6) - Abstract Factory Pattern" /><published>2022-02-21T17:00:00+00:00</published><updated>2022-02-21T17:00:00+00:00</updated><id>https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-6-abstract-factory-pattern</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-6-abstract-factory-pattern/">&lt;blockquote&gt;
+  &lt;p&gt;您可於此 &lt;a href=&quot;https://github.com/nickhuangcyh/design_pattern&quot;&gt;design_pattern repo&lt;/a&gt; 下載 Design Pattern 系列程式碼。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;上一篇我們利用 &lt;a href=&quot;% post_url 2022-02-19-design-pattern-5-factory-method-pattern %}&quot;&gt;工廠方法模式&lt;/a&gt; 讓分店可以客製化飲品使用的原料，也遵守了 &lt;strong&gt;開放封閉原則&lt;/strong&gt; 使我們可以很輕易地添加其他分店，而不改變已經存在的程式碼。&lt;/p&gt;
+
+&lt;p&gt;試想一下假如飲料菜單新增的飲品越來越多，分店也越來越多，大家應該會發現到，各分店的工廠所要增加的品項判斷也會越來越多。&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;d64d4063-909c-4656-adde-8412305cd665&quot; data-name=&quot;data-struct&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;d64d4063-909c-4656-adde-8412305cd665&quot; data-name=&quot;data-struct&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/4efb9daca505d9a30c28c8c058d75f8b.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/b04fdc28c516d947869c8e9d789cc1ca.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;如何處理多個產品在不同分店的組合，這時就需要用到 &lt;strong&gt;Abstract Factory Pattern&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;abstract-factory-pattern&quot;&gt;Abstract Factory Pattern&lt;/h2&gt;
+
+&lt;p&gt;透過將工廠抽象，使子類別能創建一系列的實體物件。&lt;/p&gt;
+
+&lt;p&gt;抽象工廠有個重要的判斷方式，當你所要創建的產品是一整個系列產品，且不同需求要創建不同系列，這個關係能夠畫成二維關係，這時就非常適合使用抽象工廠來建立產品&lt;/p&gt;
+
+&lt;p&gt;如下圖&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Country / Tea&lt;/th&gt;
+      &lt;th&gt;BlackTea&lt;/th&gt;
+      &lt;th&gt;GreenTea&lt;/th&gt;
+      &lt;th&gt;MilkTea&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;US Flavor&lt;/td&gt;
+      &lt;td&gt;Ceylon(錫蘭)&lt;/td&gt;
+      &lt;td&gt;Gyokuro(玉露)&lt;/td&gt;
+      &lt;td&gt;Thai (泰奶)&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;EU Flavor&lt;/td&gt;
+      &lt;td&gt;EarlGrey(伯爵)&lt;/td&gt;
+      &lt;td&gt;Sencha(煎茶)&lt;/td&gt;
+      &lt;td&gt;Masala Chai (印度馬薩拉))&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;JP Flavor&lt;/td&gt;
+      &lt;td&gt;Assam(阿薩姆)&lt;/td&gt;
+      &lt;td&gt;Matcha(抹茶)&lt;/td&gt;
+      &lt;td&gt;Hokkaido(北海道奶茶)&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;讓我們根據上面的茶家族修改一下 UML 及程式碼吧(這邊只是要表達二維關係的概念，僅先實作紅茶及綠茶的部分)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_6_abstract_factory_pattern_uml_1.png&quot; alt=&quot;design_pattern_6_abstract_factory_pattern_uml_1&quot; /&gt;&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;bf92fdca-bd70-4c30-8bed-3f53690c59a0&quot; data-name=&quot;data-struct&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;bf92fdca-bd70-4c30-8bed-3f53690c59a0&quot; data-name=&quot;data-struct&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/49cf3ff30b5ea2766cd540a1146316ae.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/2b53e517b1132044ebec95f4057a1a54.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;使用抽象工廠後，分店不需要知道實際是什麼茶，只要知道跟自己地區的飲料工廠取得 紅/綠/奶茶，這邊也運用到了 Dependency Inversion Principle，工廠及產品兩者皆依賴於抽象。&lt;/p&gt;
+
+&lt;p&gt;下面舉幾種二維關係可以使用 Abstract Factory Pattern 的例子&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;做跨平台應用時，會遇到不同平台與各種 UI 元件的組合&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;OS / UI Components&lt;/th&gt;
+      &lt;th&gt;Button&lt;/th&gt;
+      &lt;th&gt;Checkbox&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Linux&lt;/td&gt;
+      &lt;td&gt;LinuxButton&lt;/td&gt;
+      &lt;td&gt;LinuxCheckbox&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;MacOS&lt;/td&gt;
+      &lt;td&gt;MacButton&lt;/td&gt;
+      &lt;td&gt;MacCheckbox&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Windows&lt;/td&gt;
+      &lt;td&gt;WinButton&lt;/td&gt;
+      &lt;td&gt;WinCheckbox&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;做 App 時，會遇到需要支持 Light/Dark Mode 與各種 UI 元件的組合&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Theme / UI Components&lt;/th&gt;
+      &lt;th&gt;Button&lt;/th&gt;
+      &lt;th&gt;Checkbox&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Light Mode&lt;/td&gt;
+      &lt;td&gt;LightModeButton&lt;/td&gt;
+      &lt;td&gt;LightModeCheckbox&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Dark Mode&lt;/td&gt;
+      &lt;td&gt;DarkModeButton&lt;/td&gt;
+      &lt;td&gt;DarkModeCheckbox&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;做 IoT 系統時，會遇到 ZWave/Zigbeee 傳輸協議與各種 Iot 裝置的組合&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Protocol / Device&lt;/th&gt;
+      &lt;th&gt;Dimmer&lt;/th&gt;
+      &lt;th&gt;Hue&lt;/th&gt;
+      &lt;th&gt;Thermostat&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;ZWave&lt;/td&gt;
+      &lt;td&gt;ZWDimmer&lt;/td&gt;
+      &lt;td&gt;ZWHue&lt;/td&gt;
+      &lt;td&gt;ZWThermostat&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Zigbee&lt;/td&gt;
+      &lt;td&gt;ZBDimmer&lt;/td&gt;
+      &lt;td&gt;ZBHue&lt;/td&gt;
+      &lt;td&gt;ZBThermostat&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;uml&quot;&gt;UML&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_6_abstract_factory_pattern_uml_2.png&quot; alt=&quot;design_pattern_6_abstract_factory_pattern_uml_2&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;factory-method-pattern-vs-abstract-factory-pattern&quot;&gt;Factory Method Pattern vs Abstract Factory Pattern&lt;/h2&gt;
+
+&lt;h3 id=&quot;factory-method-pattern-工廠方法模式&quot;&gt;Factory Method Pattern 工廠方法模式&lt;/h3&gt;
+
+&lt;p&gt;對每一種產品提供相應的工廠去建立產品，產品擴充性高。&lt;/p&gt;
+
+&lt;h3 id=&quot;abstract-factory-pattern-抽象工廠模式&quot;&gt;Abstract Factory Pattern 抽象工廠模式&lt;/h3&gt;
+
+&lt;p&gt;對一整個系列的產品進行抽象建立，工廠擴充性高，如加入新的系列產品，但產品擴充性低，所有的工廠都必須加入新產品。&lt;/p&gt;
+
+&lt;h2 id=&quot;總結&quot;&gt;總結&lt;/h2&gt;
+
+&lt;p&gt;我們來看看工廠方法用到哪些 &lt;a href=&quot;/blog/design%20pattern/design-pattern-1-design-principle/&quot;&gt;Design Principle&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Encapsulate What Varies&lt;/li&gt;
+  &lt;li&gt;Loose Coupling&lt;/li&gt;
+  &lt;li&gt;Program to Interfaces&lt;/li&gt;
+  &lt;li&gt;Single Responsibility Principle&lt;/li&gt;
+  &lt;li&gt;Open Closed Principle&lt;/li&gt;
+  &lt;li&gt;Dependency Inversion Principle&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;參考&quot;&gt;參考&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789867794529&quot;&gt;Head First Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789866761799&quot;&gt;大話設計模式&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/advanced-design-patterns-design-principles/what-are-design-principles?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Advanced Design Patterns: Design Principles&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/programming-foundations-design-patterns-2/trying-interfaces?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Programming Foundations: Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/design-patterns-creational/think-about-how-you-create-objects?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Design Patterns: Creational&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://refactoring.guru/design-patterns/factory-method&quot;&gt;refactoring&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Nick Huang</name></author><category term="Design Pattern" /><category term="Abstract Factory Pattern" /><summary type="html">透過將工廠抽象，使子類別能創建一系列的實體物件。</summary></entry><entry><title type="html">Design Pattern 系列 (5) - Factory Method Pattern</title><link href="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-5-factory-method-pattern/" rel="alternate" type="text/html" title="Design Pattern 系列 (5) - Factory Method Pattern" /><published>2022-02-19T09:20:00+00:00</published><updated>2022-02-19T09:20:00+00:00</updated><id>https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-5-factory-method-pattern</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-5-factory-method-pattern/">&lt;blockquote&gt;
+  &lt;p&gt;您可於此 &lt;a href=&quot;https://github.com/nickhuangcyh/design_pattern&quot;&gt;design_pattern repo&lt;/a&gt; 下載 Design Pattern 系列程式碼。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;上一篇我們利用 &lt;a href=&quot;% post_url 2022-02-13-design-pattern-4-simple-factory-pattern %}&quot;&gt;簡單工廠模式&lt;/a&gt;成功地將 &lt;strong&gt;需要變動&lt;/strong&gt; 以及 &lt;strong&gt;不需變動&lt;/strong&gt; 的程式碼分離。&lt;/p&gt;
+
+&lt;p&gt;飲料點餐系統受到客戶的喜愛，業績非常好，於是客戶在世界各地迅速擴店，但很快的問題出現了。&lt;/p&gt;
+
+&lt;p&gt;因為世界各地的人有不同的偏好，分店開始反應，該地區的顧客不喜歡目前正在使用的紅茶綠茶之茶葉，希望替換該區喜愛的茶葉&lt;/p&gt;
+
+&lt;p&gt;例如: 美國喜歡錫蘭紅茶、歐洲喜歡伯爵紅茶&lt;/p&gt;
+
+&lt;p&gt;(成本考量我們不將所有紅茶種類都加入菜單，只用最符合當地口味的茶葉製作紅茶)&lt;/p&gt;
+
+&lt;p&gt;於是我們修改簡單工廠的程式碼，新增 USBeverageFactory 及 EUBeverageFactory 來製作符合美國及歐洲當地口味的飲品&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;62329449-6198-43a0-b61e-4acbbd30384a&quot; data-name=&quot;data-struct&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;62329449-6198-43a0-b61e-4acbbd30384a&quot; data-name=&quot;data-struct&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/5c03101f45a1144fffbd5173d906d286.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/47bcb79696354e083cdc99a8d53c22cb.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;這樣做雖然可以滿足分店從不同工廠取得該地區的飲品，但每當有新的分店加入，就必須動到 BeverageShop 的程式碼來添加新的分店工廠，違反了 &lt;strong&gt;Open Closed Principle&lt;/strong&gt;，如何解決就要介紹今天的主角 &lt;strong&gt;Factory Method Pattern&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;factory-method-pattern&quot;&gt;Factory Method Pattern&lt;/h2&gt;
+
+&lt;p&gt;提供一個介面用來創建物件，真正實體化的類別由子類別實作決定。
+讓我們修改一下上面的 UML 及程式碼吧&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_5_factory_method_pattern_uml_1.png&quot; alt=&quot;design_pattern_5_factory_method_pattern_uml_1&quot; /&gt;&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;303d67b0-8183-4b5b-8170-b52b0758c2d4&quot; data-name=&quot;data-struct&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;303d67b0-8183-4b5b-8170-b52b0758c2d4&quot; data-name=&quot;data-struct&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/2504aa439c085480b77a709e1304b141.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/f9d13d1e1bbb7d1736c031e5e3cd2e26.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;透過工廠方法模式，我們透過將工廠抽象化，達到可擴充性，之後如果要拓展其他分店像是日本分店，只需新增一個 JPBeverageFactory ，就能創建能做出符合日本人口味的飲料工廠，而不需修改到其他不需變動的程式碼。&lt;/p&gt;
+
+&lt;p&gt;最後來看一下 &lt;strong&gt;工廠方法&lt;/strong&gt; 的 UML 圖&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_5_factory_method_pattern_uml_2.png&quot; alt=&quot;design_pattern_5_factory_method_pattern_uml_2&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;總結&quot;&gt;總結&lt;/h2&gt;
+
+&lt;p&gt;我們來看看工廠方法用到哪些 &lt;a href=&quot;/blog/design%20pattern/design-pattern-1-design-principle/&quot;&gt;Design Principle&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Encapsulate What Varies&lt;/li&gt;
+  &lt;li&gt;Loose Coupling&lt;/li&gt;
+  &lt;li&gt;Program to Interfaces&lt;/li&gt;
+  &lt;li&gt;Single Responsibility Principle&lt;/li&gt;
+  &lt;li&gt;Open Closed Principle&lt;/li&gt;
+  &lt;li&gt;Dependency Inversion Principle&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;下一篇要介紹最後一個工廠模式 Abstract Factory Pattern 抽象工廠模式&lt;/p&gt;
+
+&lt;h2 id=&quot;參考&quot;&gt;參考&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789867794529&quot;&gt;Head First Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789866761799&quot;&gt;大話設計模式&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/advanced-design-patterns-design-principles/what-are-design-principles?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Advanced Design Patterns: Design Principles&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/programming-foundations-design-patterns-2/trying-interfaces?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Programming Foundations: Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/design-patterns-creational/think-about-how-you-create-objects?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Design Patterns: Creational&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://refactoring.guru/design-patterns/factory-method&quot;&gt;refactoring&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Nick Huang</name></author><category term="Design Pattern" /><category term="Factory Method Pattern" /><summary type="html">提供一個介面用來創建物件，真正實體化的類別由子類別實作決定。</summary></entry><entry><title type="html">Design Pattern 系列 (4) - Simple Factory Pattern</title><link href="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-4-simple-factory-pattern/" rel="alternate" type="text/html" title="Design Pattern 系列 (4) - Simple Factory Pattern" /><published>2022-02-13T15:45:00+00:00</published><updated>2022-02-13T15:45:00+00:00</updated><id>https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-4-simple-factory-pattern</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-4-simple-factory-pattern/">&lt;blockquote&gt;
+  &lt;p&gt;您可於此 &lt;a href=&quot;https://github.com/nickhuangcyh/design_pattern&quot;&gt;design_pattern repo&lt;/a&gt; 下載 Design Pattern 系列程式碼。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;今天我們想做一套飲料點餐系統，很快的我們畫出 UML 並寫出了下面的程式碼&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_4_simple_factory_pattern_uml_1.png&quot; alt=&quot;design_pattern_4_simple_factory_pattern_uml_1&quot; /&gt;&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;9734933a-0599-4e9f-b278-ed13373da1bf&quot; data-name=&quot;simple-factory-pattern-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;9734933a-0599-4e9f-b278-ed13373da1bf&quot; data-name=&quot;simple-factory-pattern-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/524687369cea9156cfa845b0bf002996.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/0d007a8b715cdcb55ab7c928c619c712.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;隨著飲料店越來越多新飲品，我們也需要修改 order 方法，但這樣容易影響不會變動的程式碼，於是我們需要找出 &lt;strong&gt;需要變動&lt;/strong&gt; 以及 &lt;strong&gt;不需變動&lt;/strong&gt; 的程式碼，把它們分隔開來&lt;/p&gt;
+
+&lt;p&gt;需要變動的程式碼&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;51fe49f9-f395-4b27-8882-46abaed29134&quot; data-name=&quot;simple-factory-pattern-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;51fe49f9-f395-4b27-8882-46abaed29134&quot; data-name=&quot;simple-factory-pattern-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/4286ac98cd3b7065abbdfb977896e5af.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/b6fc75b9612175a1f0b1b02972555fd3.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;不需變動的程式碼&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;329e38f0-9dd6-4a8f-b6db-c0f8bd8e6b6b&quot; data-name=&quot;simple-factory-pattern-3&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;329e38f0-9dd6-4a8f-b6db-c0f8bd8e6b6b&quot; data-name=&quot;simple-factory-pattern-3&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/d4c281f4826ebfe031f13c6b794bab94.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/118247f29320ce89ddcbab8e0f68557a.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;找出後該如何做呢，這時候需要用到 &lt;strong&gt;簡單工廠模式&lt;/strong&gt; 來將其分離&lt;/p&gt;
+
+&lt;h2 id=&quot;simple-factory-pattern-簡單工廠模式&quot;&gt;Simple Factory Pattern 簡單工廠模式&lt;/h2&gt;
+
+&lt;p&gt;其實就是定義一個工廠類別來專門處理創建物件的邏輯
+那就讓我們修改一下上面的 UML 及程式碼吧&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_4_simple_factory_pattern_uml_2.png&quot; alt=&quot;design_pattern_4_simple_factory_pattern_uml_2&quot; /&gt;&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;ec1d794e-5c4e-4869-8997-0f111ae6aa49&quot; data-name=&quot;simple-factory-pattern-4&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;ec1d794e-5c4e-4869-8997-0f111ae6aa49&quot; data-name=&quot;simple-factory-pattern-4&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/ae11dfd9eb50874a151dc04b5051bb3d.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/94ea6cf630fd9b3b92e476d5273a08cb.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;透過簡單工廠模式，我們就將 &lt;strong&gt;需要變動&lt;/strong&gt; 以及 &lt;strong&gt;不需變動&lt;/strong&gt; 的程式碼成功分隔開來，當要修改菜單時，只需修改 &lt;strong&gt;BeverageFactory&lt;/strong&gt; 即可，不會影響到其他程式碼。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;簡單工廠其實不是設計模式，反而比較像是一種編成習慣&lt;/p&gt;
+
+  &lt;p&gt;有些開發者的確是把這個編成習慣誤認為 &lt;strong&gt;工廠模式 (Factory Pattern)&lt;/strong&gt;&lt;/p&gt;
+
+  &lt;p&gt;不要因為簡單工廠不是一個 &lt;strong&gt;真正的&lt;/strong&gt; 模式，就忽略了它的用法。&lt;/p&gt;
+
+  &lt;p&gt;– Head First Design Pattern Ch.4 P.117&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;最後來看一下 &lt;strong&gt;簡單工廠模式&lt;/strong&gt; 的 UML 圖
+&lt;img src=&quot;/blog/assets/images/design_pattern_4_simple_factory_pattern_uml_3.png&quot; alt=&quot;design_pattern_4_simple_factory_pattern_uml_3&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;總結&quot;&gt;總結&lt;/h2&gt;
+
+&lt;p&gt;簡單工廠雖然不是 23 個設計模式之中的一種，但它非常簡單，且能訓練我們將變動及不會變動的程式碼分離的習慣
+來看一下我們在簡單工廠用到了哪些 &lt;a href=&quot;/blog/design%20pattern/design-pattern-1-design-principle/&quot;&gt;Design Principle&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Encapsulate What Varies&lt;/li&gt;
+  &lt;li&gt;Single Responsibility Principle&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;下一篇正式進入 23 個 Design Pattern 的第一個 Factory Method Pattern 工廠方法模式&lt;/p&gt;
+
+&lt;h2 id=&quot;參考&quot;&gt;參考&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789867794529&quot;&gt;Head First Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789866761799&quot;&gt;大話設計模式&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/advanced-design-patterns-design-principles/what-are-design-principles?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Advanced Design Patterns: Design Principles&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/programming-foundations-design-patterns-2/trying-interfaces?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Programming Foundations: Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/design-patterns-creational/think-about-how-you-create-objects?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Design Patterns: Creational&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Nick Huang</name></author><category term="Design Pattern" /><category term="Simple Factory Pattern" /><summary type="html">將會變動的創建物件程式碼與不會變動的程式碼分開吧，增加程式碼可讀性及維護性</summary></entry><entry><title type="html">Design Pattern 系列 (3) - UML 詳細解說</title><link href="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-3-uml/" rel="alternate" type="text/html" title="Design Pattern 系列 (3) - UML 詳細解說" /><published>2022-02-06T15:36:00+00:00</published><updated>2022-02-06T15:36:00+00:00</updated><id>https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-3-uml</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-3-uml/">&lt;blockquote&gt;
+  &lt;p&gt;您可於此 &lt;a href=&quot;https://github.com/nickhuangcyh/design_pattern&quot;&gt;design_pattern repo&lt;/a&gt; 下載 Design Pattern 系列程式碼。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;uml-unified-modeling-language&quot;&gt;UML (Unified Modeling Language)&lt;/h2&gt;
+
+&lt;p&gt;UML 是一種用視覺圖形化來規劃建構軟體的方法。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml.png&quot; alt=&quot;design_pattern_3_uml&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;不要急著寫程式，尤其是遇到較複雜的功能，先思考如何設計架構畫出 UML 圖，程式才會具有可讀性、維護性及擴展性。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;class-類別&quot;&gt;Class 類別&lt;/h2&gt;
+
+&lt;p&gt;如圖分為三列依序是&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Class 名稱&lt;/li&gt;
+  &lt;li&gt;Attribute 屬性&lt;/li&gt;
+  &lt;li&gt;Operations 方法&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_class.png&quot; alt=&quot;design_pattern_3_uml_class&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;interface-介面&quot;&gt;Interface 介面&lt;/h2&gt;
+
+&lt;p&gt;Interface 有兩種表示法&lt;/p&gt;
+
+&lt;h3 id=&quot;一般表示法&quot;&gt;一般表示法&lt;/h3&gt;
+
+&lt;p&gt;一般型式與 Class 並無太大區別，只要在 Class Name 上方標註 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/code&gt; 即可&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_interface_1.png&quot; alt=&quot;design_pattern_3_uml_interface_1&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;棒棒糖表示法&quot;&gt;棒棒糖表示法&lt;/h3&gt;
+
+&lt;p&gt;用球狀來表示介面&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_interface_2.png&quot; alt=&quot;design_pattern_3_uml_interface_2&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;attribute-屬性&quot;&gt;Attribute 屬性&lt;/h2&gt;
+
+&lt;h3 id=&quot;visibility-可視範圍&quot;&gt;Visibility 可視範圍&lt;/h3&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Sign&lt;/th&gt;
+      &lt;th&gt;Modifiers&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;+&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;Public&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;#&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;Protected&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;~&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;Package&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;Private&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_attribute.png&quot; alt=&quot;design_pattern_3_uml_interface_2&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;multiplicity-關聯多重性&quot;&gt;Multiplicity 關聯多重性&lt;/h2&gt;
+
+&lt;p&gt;Object 之間的數量關係，預設為 1&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Sign&lt;/th&gt;
+      &lt;th&gt;amount&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;1&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;1 個&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;無限多個&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;n...m&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;至少 n 個，至多 m 個&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;dependency-依賴&quot;&gt;Dependency 依賴&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;表示不同對象之間相互依賴關係&lt;/li&gt;
+  &lt;li&gt;通常用於方法的參數或回傳值&lt;/li&gt;
+  &lt;li&gt;A uses a B&lt;/li&gt;
+  &lt;li&gt;箭頭指向要依賴的對象&lt;/li&gt;
+  &lt;li&gt;以 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;虛線&lt;/code&gt; + &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;箭頭&lt;/code&gt; 表示&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_dependency_sign.png&quot; alt=&quot;design_pattern_3_uml_dependency_sign&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;動物使用(依賴)氧氣呼吸生存&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_dependency.png&quot; alt=&quot;design_pattern_3_uml_dependency&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;association-關聯&quot;&gt;Association 關聯&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;表示一個對象擁有另一個對象&lt;/li&gt;
+  &lt;li&gt;通常用於屬性、全域變數&lt;/li&gt;
+  &lt;li&gt;A has a C&lt;/li&gt;
+  &lt;li&gt;Aggregation、Composition 為子集&lt;/li&gt;
+  &lt;li&gt;箭頭指向要關聯的對象&lt;/li&gt;
+  &lt;li&gt;以 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;實線&lt;/code&gt; + &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;箭頭&lt;/code&gt; 表示&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_association_sign.png&quot; alt=&quot;design_pattern_3_uml_association_sign&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;每個人有(關聯)一個地址&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_association.png&quot; alt=&quot;design_pattern_3_uml_association&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;aggregation-聚合&quot;&gt;Aggregation 聚合&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;表示一個對象擁有另一個對象&lt;/li&gt;
+  &lt;li&gt;A owns a B&lt;/li&gt;
+  &lt;li&gt;Association 為超集、Composition 為子集&lt;/li&gt;
+  &lt;li&gt;菱形指向要聚合的對象&lt;/li&gt;
+  &lt;li&gt;弱關聯，關聯及被關聯對象可互相獨立存在&lt;/li&gt;
+  &lt;li&gt;以 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;實線&lt;/code&gt; + &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;空心菱形&lt;/code&gt; 表示&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_aggregation_sign.png&quot; alt=&quot;design_pattern_3_uml_aggregation_sign&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;人擁有(聚合)衣服，人和衣服可以單獨存在&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_aggregation.png&quot; alt=&quot;design_pattern_3_uml_aggregation&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;composition-組合&quot;&gt;Composition 組合&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;表示一個對象擁有另一個對象&lt;/li&gt;
+  &lt;li&gt;C is a part of A&lt;/li&gt;
+  &lt;li&gt;Association、Aggregation 為超集&lt;/li&gt;
+  &lt;li&gt;菱形指向要組合的對象&lt;/li&gt;
+  &lt;li&gt;強關聯，被關聯對象不可獨立存在&lt;/li&gt;
+  &lt;li&gt;以 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;實線&lt;/code&gt; + &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;實心菱形&lt;/code&gt; 表示&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_composition_sign.png&quot; alt=&quot;design_pattern_3_uml_composition_sign&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;人類有器官，人死了器官就無作用不存在了&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;(這邊先不討論器官可移植到別人身上的情況 😂 )&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_composition.png&quot; alt=&quot;design_pattern_3_uml_composition&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;associationaggregation-及-composition-三者關係&quot;&gt;Association、Aggregation 及 Composition 三者關係&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Aggregation and Composition are subsets of association meaning they are specific cases of association. In both aggregation and composition object of one class “owns” object of another class. But there is a subtle difference:&lt;/p&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;Aggregation implies a relationship where the child can exist independently of the parent. Example: Class (parent) and Student (child). Delete the Class and the Students still exist.&lt;/li&gt;
+    &lt;li&gt;Composition implies a relationship where the child cannot exist independent of the parent. Example: House (parent) and Room (child). Rooms don’t exist separate to a House.&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_compare_association_aggregation_composition.png&quot; alt=&quot;design_pattern_3_uml_compare_association_aggregation_composition&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;realization--implementation-實現--實作&quot;&gt;Realization / Implementation 實現 / 實作&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;表示一個對象實作另一個對象&lt;/li&gt;
+  &lt;li&gt;B implements A&lt;/li&gt;
+  &lt;li&gt;箭頭指向 interface&lt;/li&gt;
+  &lt;li&gt;以 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;虛線&lt;/code&gt; + &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;空心箭頭&lt;/code&gt; 表示&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_realization_implementation_sign.png&quot; alt=&quot;design_pattern_3_uml_realization_implementation_sign&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;心、肝、胃、腸要實作器官&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_realization_implementation.png&quot; alt=&quot;design_pattern_3_uml_realization_implementation&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;generalization--inheritance-泛化--繼承&quot;&gt;Generalization / Inheritance 泛化 / 繼承&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;表示一個對象繼承另一個對象&lt;/li&gt;
+  &lt;li&gt;C is-a A&lt;/li&gt;
+  &lt;li&gt;箭頭指向 父類別&lt;/li&gt;
+  &lt;li&gt;以 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;實線&lt;/code&gt; + &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;空心箭頭&lt;/code&gt; 表示&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_generalization_inheritance_sign.png&quot; alt=&quot;design_pattern_3_uml_generalization_inheritance_sign&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;人是一種動物&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_3_uml_generalization_inheritance.png&quot; alt=&quot;design_pattern_3_uml_generalization_inheritance&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;總結&quot;&gt;總結&lt;/h2&gt;
+
+&lt;p&gt;之後的 Design Pattern 系列文章會大量使用到 UML 圖，搞懂這些圖及箭頭的含義在軟體設計上是非常有幫助的，下一篇終於要進入第一個 Design Pattern。&lt;/p&gt;
+
+&lt;p&gt;今天是 2022 新年連假的最後一天，新年都在耍廢追六人行、Doctor X 跟 JOJO 石之海，看 &lt;a href=&quot;https://tw.kotlin.tips/&quot;&gt;Kotlin 讀書會&lt;/a&gt; 的前輩 &lt;a href=&quot;https://gitpage.reccachao.net/&quot;&gt;Recca Chao&lt;/a&gt; 過年天天在刷 leetcode 再看看自己覺得很慚愧，該收收心繼續努力朝夢想前進了!&lt;/p&gt;
+
+&lt;h2 id=&quot;參考&quot;&gt;參考&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://spicyboyd.blogspot.com/2018/07/umlclass-diagram-introduction.html&quot;&gt;【UML】Class Diagram 類別圖 (上)：Introduction 簡介&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://spicyboyd.blogspot.com/2018/07/umlclass-diagram-relationships.html&quot;&gt;【UML】Class Diagram 類別圖 (下)：Relationships 關係&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.guru99.com/uml-relationships-with-example.html#5&quot;&gt;UML Relationships Types: Association, Dependency, Generalization&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/questions/885937/what-is-the-difference-between-association-aggregation-and-composition&quot;&gt;What is the difference between association, aggregation and composition?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.visual-paradigm.com/guide/uml-unified-modeling-language/uml-aggregation-vs-composition/&quot;&gt;UML Association vs Aggregation vs Composition&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Nick Huang</name></author><category term="Design Pattern" /><category term="UML" /><summary type="html">別急著寫程式，先規劃好架構 🤔</summary></entry><entry><title type="html">Design Pattern 系列 (2) - Design Patterns Categories</title><link href="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-2-design-patterns-categories/" rel="alternate" type="text/html" title="Design Pattern 系列 (2) - Design Patterns Categories" /><published>2022-01-31T16:00:00+00:00</published><updated>2022-01-31T16:00:00+00:00</updated><id>https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-2-design-patterns-categories</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-2-design-patterns-categories/">&lt;blockquote&gt;
+  &lt;p&gt;您可於此 &lt;a href=&quot;https://github.com/nickhuangcyh/design_pattern&quot;&gt;design_pattern repo&lt;/a&gt; 下載 Design Pattern 系列程式碼。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;design-patterns-categories&quot;&gt;Design Patterns Categories&lt;/h2&gt;
+
+&lt;p&gt;Design Pattern 可以分為三種基本的類型&lt;/p&gt;
+
+&lt;h3 id=&quot;creational-創建型&quot;&gt;Creational 創建型&lt;/h3&gt;
+
+&lt;p&gt;創建實例化物件有關的 Patterns&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Factory Method Pattern&lt;/li&gt;
+  &lt;li&gt;Abstract Factory Pattern&lt;/li&gt;
+  &lt;li&gt;Builder Pattern&lt;/li&gt;
+  &lt;li&gt;Prototype Pattern&lt;/li&gt;
+  &lt;li&gt;Singleton Pattern&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;structural-結構型&quot;&gt;Structural 結構型&lt;/h3&gt;
+
+&lt;p&gt;物件之間如何組成更大結構的 Patterns&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Adapter Pattern&lt;/li&gt;
+  &lt;li&gt;Bridge Pattern&lt;/li&gt;
+  &lt;li&gt;Decorator Pattern&lt;/li&gt;
+  &lt;li&gt;Facade Pattern&lt;/li&gt;
+  &lt;li&gt;Proxy Pattern&lt;/li&gt;
+  &lt;li&gt;Flyweight Pattern&lt;/li&gt;
+  &lt;li&gt;Composite Pattern&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;behavioural-行為型&quot;&gt;Behavioural 行為型&lt;/h3&gt;
+
+&lt;p&gt;物件之間行為交互的 Patterns&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Chain of Responsibility Pattern&lt;/li&gt;
+  &lt;li&gt;Mediator Pattern&lt;/li&gt;
+  &lt;li&gt;Iterator Pattern&lt;/li&gt;
+  &lt;li&gt;State Pattern&lt;/li&gt;
+  &lt;li&gt;Observer Pattern&lt;/li&gt;
+  &lt;li&gt;Command Pattern&lt;/li&gt;
+  &lt;li&gt;Strategy Pattern&lt;/li&gt;
+  &lt;li&gt;Template Pattern&lt;/li&gt;
+  &lt;li&gt;Interpreter Pattern&lt;/li&gt;
+  &lt;li&gt;Memento Pattern&lt;/li&gt;
+  &lt;li&gt;Visitor Pattern&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;總結&quot;&gt;總結&lt;/h2&gt;
+
+&lt;p&gt;接下來會一一介紹這 GoF 這 23 種 Design Pattern。&lt;/p&gt;
+
+&lt;p&gt;2022 年除夕守歲結束了，也該去睡了，準備明天繼續努力完成 Design Pattern 系列。&lt;/p&gt;
+
+&lt;h2 id=&quot;參考&quot;&gt;參考&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789867794529&quot;&gt;Head First Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789866761799&quot;&gt;大話設計模式&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/advanced-design-patterns-design-principles/what-are-design-principles?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Advanced Design Patterns: Design Principles&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/programming-foundations-design-patterns-2/trying-interfaces?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Programming Foundations: Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/design-patterns-creational/think-about-how-you-create-objects?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Design Patterns: Creational&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Nick Huang</name></author><category term="Design Pattern" /><category term="Creational Patterns" /><category term="Structural Patterns" /><category term="Behavioral Patterns" /><summary type="html">Creational x Structural x Behavioural</summary></entry><entry><title type="html">Design Pattern 系列 (1) - Design Principle</title><link href="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-1-design-principle/" rel="alternate" type="text/html" title="Design Pattern 系列 (1) - Design Principle" /><published>2022-01-31T09:30:00+00:00</published><updated>2022-01-31T09:30:00+00:00</updated><id>https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-1-design-principle</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/design%20pattern/design-pattern-1-design-principle/">&lt;p&gt;這一系列文章我會透過工作上的經驗及研讀 &lt;a href=&quot;https://www.tenlong.com.tw/products/9789867794529&quot;&gt;Head First Design Patterns&lt;/a&gt;、&lt;a href=&quot;https://www.tenlong.com.tw/products/9789866761799&quot;&gt;大話設計模式&lt;/a&gt; 兩本書，加上學習 Linkedin Learning 上的兩個課程 &lt;a href=&quot;https://www.linkedin.com/learning/advanced-design-patterns-design-principles/what-are-design-principles?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Advanced Design Patterns: Design Principles&lt;/a&gt;、&lt;a href=&quot;https://www.linkedin.com/learning/programming-foundations-design-patterns-2/trying-interfaces?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Programming Foundations: Design Patterns&lt;/a&gt;、&lt;a href=&quot;https://www.linkedin.com/learning/design-patterns-creational/think-about-how-you-create-objects?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Design Patterns: Creational&lt;/a&gt;，理解整理後，寫成文章分享!&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;您可於此 &lt;a href=&quot;https://github.com/nickhuangcyh/design_pattern&quot;&gt;design_pattern repo&lt;/a&gt; 下載 Design Pattern 系列程式碼。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;design-pattern&quot;&gt;Design Pattern&lt;/h2&gt;
+
+&lt;p&gt;在軟體設計會遇到各種問題，Design Pattern 是軟體設計高手為這些常見的問題所提出的解決方案，解決設計上彈性、擴充不足等等問題…&lt;/p&gt;
+
+&lt;h2 id=&quot;design-pattern-的重要性&quot;&gt;Design Pattern 的重要性&lt;/h2&gt;
+
+&lt;p&gt;設計模式在軟體工程上是非常重要的核心知識，設計模式之於軟體工程師，就像內功心法之於習武之人一樣重要，神鵰俠侶中的楊過精通各式各樣的武功，也是因為內功深厚，後期不論學任何武功都非常快速，而軟體工程師的核心技能就是演算法、資料結構、設計模式、架構等…，只要將這些共通技能學好，在不同的程式語言及領域都能非常快上手。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_design_principle_mind.png&quot; alt=&quot;design_pattern_design_principle_mind&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;design-principle&quot;&gt;Design Principle&lt;/h2&gt;
+
+&lt;p&gt;Design Principle 是用來幫助我們改善物件導向設計的建議，幫助我們設計出更好的軟體。&lt;/p&gt;
+
+&lt;h2 id=&quot;object-oriented-concepts-物件導向概念&quot;&gt;Object-Oriented Concepts 物件導向概念&lt;/h2&gt;
+
+&lt;p&gt;學物件導向設計一定都會知道這四大概念，這邊我就簡單描述帶過&lt;/p&gt;
+
+&lt;h3 id=&quot;encapsulation-封裝&quot;&gt;Encapsulation 封裝&lt;/h3&gt;
+
+&lt;p&gt;將屬性及方法實作細節隱藏起來在類別當中，只暴露部分方法給使用者，使用者無法任意修改內部屬性及方法實作細節。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;像是開車一樣，我們只需知道踩油門會加速，踩煞車會停止，不需要知道馬達、電瓶、發動機等等原理，這些都被專業汽車工程師封裝在引擎蓋中了。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;inheritance-繼承&quot;&gt;Inheritance 繼承&lt;/h3&gt;
+
+&lt;p&gt;子類別可以繼承父類別的屬性及方法，達到程式碼重複使用之目的。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;自然界中，狗與貓都是動物能呼吸行動，花草及樹木都是植物能行光合作用，這就是繼承。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;polymorphism-多型&quot;&gt;Polymorphism 多型&lt;/h3&gt;
+
+&lt;p&gt;為不同的類別提供統一介面或抽象類別，以操作不同的實體物件。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;以前 iPhone 6S 年代還不像現在全是台積電代工，有一部分 i6S 是給三星代工，但無論是台積電或三星代工的晶圓，都能被 i6S 使用，使用者拿到的 i6S 無論是台積電或三星代工，手機的功能都一樣都是 i6S，這就是多型。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;abstraction-抽象&quot;&gt;Abstraction 抽象&lt;/h3&gt;
+
+&lt;p&gt;透過類型子類及抽象方式，隱藏依賴於類型或接口的實作細節。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;我們會在手機上裝很多 App，App 就是對各種不同 Application 的一個抽象名稱，我們會說去市場買水果，可能是蘋果也可能是香蕉，水果也是一種抽象名稱，其他像是肉、蔬菜等等也是，這就是抽象。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;object-oriented-concepts-design-principle-design-pattern-之間關係&quot;&gt;Object-Oriented Concepts, Design Principle, Design Pattern 之間關係&lt;/h2&gt;
+
+&lt;p&gt;三者關係是由下至上的概念，Design Principle 由 Object-Oriented Concepts 概念所衍生，Design Pattern 由 Design Principle 概念所衍生&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_design_principle_architecture.png&quot; alt=&quot;design_pattern_design_principle_architecture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;有點像鬼滅之刃中呼吸法都源自於日之呼吸的概念&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://i2.wp.com/bokunoheroaccount.com/wp-content/uploads/2020/08/cbf2d5e3fb4f256a702921bbb064c05a-1024x821.png?resize=1024%2C821&amp;amp;ssl=1&quot; alt=&quot;breathe way&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;refer to &lt;a href=&quot;https://i2.wp.com/bokunoheroaccount.com/wp-content/uploads/2020/08/cbf2d5e3fb4f256a702921bbb064c05a-1024x821.png?resize=1024%2C821&amp;amp;ssl=1&quot;&gt;https://i2.wp.com/bokunoheroaccount.com/wp-content/uploads/2020/08/cbf2d5e3fb4f256a702921bbb064c05a-1024x821.png?resize=1024%2C821&amp;amp;ssl=1&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;encapsulate-what-varies-封裝變化&quot;&gt;Encapsulate What Varies 封裝變化&lt;/h2&gt;
+
+&lt;p&gt;找出程式中可能需要更動之處，把它們獨立出來，不要和那些不需要更動的程式碼混再一起。&lt;/p&gt;
+
+&lt;p&gt;假設今天要設計一間鬆餅店，可以訂購鬆餅&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;91975986-3935-4449-9493-62af668b1261&quot; data-name=&quot;encapsulate-what-varies-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;91975986-3935-4449-9493-62af668b1261&quot; data-name=&quot;encapsulate-what-varies-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/835acb7a2496ff7b39cda8a47e665c08.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/0f4b98c8be72d377a2b38aa81f5a8dbf.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;但老闆今天想增加新口味 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ChocolateChip&lt;/code&gt;，但 cook(), plate(), addButter() 這些程式並不需要修改，所以我們應該將會變化的程式碼抽出來封裝，減少對不需變動的程式碼產生影響。&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;75c9a553-3c3b-4b26-8a34-dee1ba11ea63&quot; data-name=&quot;encapsulate-what-varies-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;75c9a553-3c3b-4b26-8a34-dee1ba11ea63&quot; data-name=&quot;encapsulate-what-varies-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/07f751fc0716f9194e1aca18b2bc88e4.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/22a42676343d12b474b15c5ffe7cb063.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;如此我們就可以隨時添加新口味且不會影響其他不會變動的程式碼。&lt;/p&gt;
+
+&lt;h2 id=&quot;favor-composition-over-inheritance-多用合成少用繼承&quot;&gt;Favor composition over inheritance 多用合成，少用繼承&lt;/h2&gt;
+
+&lt;p&gt;HAS-A (composition) can be better than IS-A (inheritance)&lt;/p&gt;
+
+&lt;p&gt;盡量使用合成來取代繼承，並不是完全不使用繼承，而是多數情況下你應該考慮使用合成而不是繼承&lt;/p&gt;
+
+&lt;p&gt;假設今天要設計一間咖啡店，裡面有賣很多咖啡，我們可以這樣設計&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_design_principle_favor_composition_over_inheritance_1.png&quot; alt=&quot;design_pattern_design_principle_favor_composition_over_inheritance_1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;但如果今天客人要加 Butter 及 Milk，我們又要定義一個新的 class CoffeeWithButterAndMilk 繼承 Coffee
+我們會發現，隨著調味料種類越多，咖啡的組合也會越來越多，以及牛奶價格上漲，那所有包含牛奶的 Coffee 都必須修改&lt;/p&gt;
+
+&lt;p&gt;如果我們用合成取代繼承呢，從牛奶咖啡是(is-A)咖啡，變成咖啡有(has-A)各種調味料&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_design_principle_favor_composition_over_inheritance_2.png&quot; alt=&quot;design_pattern_design_principle_favor_composition_over_inheritance_2&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;你會發現使用合成取代繼承有下列好處&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;可以在 Run time 替換不同的調料物件&lt;/li&gt;
+  &lt;li&gt;新增一種新調料只需新增一個對應的 class&lt;/li&gt;
+  &lt;li&gt;沒有重複的程式碼&lt;/li&gt;
+  &lt;li&gt;避免 class 數量爆炸性增加&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;再次強調不是完全不用繼承，而是”盡量”用合成取代繼承，像圖中例子 Mocha、Butter 及 Milk 也是有使用到繼承去繼承 Condiment&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;loose-coupling-鬆耦合&quot;&gt;Loose Coupling 鬆耦合&lt;/h2&gt;
+
+&lt;p&gt;將每個組件獨立開來，使部件之間的相互影響降低&lt;/p&gt;
+
+&lt;p&gt;再來看一個範例，今天要做一個 Weather App，他可以取得溫度並顯示在螢幕上。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_design_principle_loose_coupling_1.png&quot; alt=&quot;design_pattern_design_principle_loose_coupling_1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;你會發現 WeatherApp 與 LCDScreen 緊密耦合，今天如果老闆想改成在 Widget 或 LED 上來顯示，WeatherApp 的 screen 屬性及 display 方法都要修改，且不能在 Run time 任意替換。&lt;/p&gt;
+
+&lt;p&gt;我們改一下 UML 來將兩者之間做解耦&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_design_principle_loose_coupling_2.png&quot; alt=&quot;design_pattern_design_principle_loose_coupling_2&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;這樣不管老闆想改成什麼螢幕都能夠很輕易替換，因為 WeatherApp 依賴的是介面，不再是實體，善用抽象介面解耦兩個實體物件吧!&lt;/p&gt;
+
+&lt;h2 id=&quot;program-to-interfaces-基於介面編程&quot;&gt;Program to Interfaces 基於介面編程&lt;/h2&gt;
+
+&lt;p&gt;寫程式是針對介面而寫，而不是針對實踐方式而寫。&lt;/p&gt;
+
+&lt;p&gt;當你針對介面編寫，你會發現任何物件都變得非常好抽換，當你需要注入假資料測試，你可以作假物件實作此介面即可，當你在做 MVC MVP 等架構，只需要實作此介面就能輕易替換組件，當你開始已介面去思考，你會發現程式碼變得非常有彈性、且好擴充測試，Apple 甚至在 WWDC15 中提到 Swift 的 &lt;a href=&quot;https://developer.apple.com/videos/play/wwdc2015/408/&quot;&gt;Protocol-Oriented Programming&lt;/a&gt;，代表介面(協議)思考的重要性，所以從現在起開始從介面思考吧!&lt;/p&gt;
+
+&lt;p&gt;來個例子，今天我們要設計一個基本網站，有一個 WebSystem 及 DB 來存讀資料&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_design_principle_program_to_interface_1.png&quot; alt=&quot;design_pattern_design_principle_program_to_interface_1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;今天我們想在上 Production 前，將 CommercialDB 換成 TestDB
+做測試，但目前 KillerWebSystem 的 db 型別為 CommercialDB 無法抽換&lt;/p&gt;
+
+&lt;p&gt;讓我們修改一下&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/design_pattern_design_principle_program_to_interface_2.png&quot; alt=&quot;design_pattern_design_principle_program_to_interface_2&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;寫一個 AbstractDB 的介面或抽象類別，讓 CommercialDB 及 TestDB 都實作此介面，這樣就能很輕鬆的在測試環境替換 DB&lt;/p&gt;
+
+&lt;h2 id=&quot;solid-物件導向程式設計基本五大原則&quot;&gt;SOLID 物件導向程式設計基本五大原則&lt;/h2&gt;
+
+&lt;h3 id=&quot;single-responsibility-principle-srp-單一職責原則&quot;&gt;Single Responsibility Principle (SRP) 單一職責原則&lt;/h3&gt;
+
+&lt;p&gt;物件應該僅具有一種單一功能，應只會有一個理由去改變此物件&lt;/p&gt;
+
+&lt;p&gt;e.g.
+我們要做登入頁面功能，我們會這樣寫&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;29c7a9ae-6db8-4170-9673-53c1f8af5674&quot; data-name=&quot;srp-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;29c7a9ae-6db8-4170-9673-53c1f8af5674&quot; data-name=&quot;srp-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/f07646e50fa8d3bcac3758b214339a9c.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/fbfdba6544f6ad8f13a578e0eb118806.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;依照單一職責原則，我們應該要將 API 及 DB 的功能分開，修改如下&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;99cb1a11-1833-4392-8df6-fb5702580db4&quot; data-name=&quot;srp-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;99cb1a11-1833-4392-8df6-fb5702580db4&quot; data-name=&quot;srp-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/05d0878df1f90659159a5416f7078fea.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/8fed9a96831bc8cffeaace60fd474399.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;有些文章會說 save, delete function 也須拆開在不同 class(DeleteDBService, SaveDBService)處理, 因為 save. delete 是不同職責修改項目, 不應動到另一個 class, 但我認為這樣 Over Design 反而不好維護, 拆分職責應適當不過度&lt;/p&gt;
+
+&lt;h3 id=&quot;open-closed-principle-ocp-開放封閉原則&quot;&gt;Open Closed Principle (OCP) 開放封閉原則&lt;/h3&gt;
+
+&lt;p&gt;對於擴充開放，對於修改封閉&lt;/p&gt;
+
+&lt;p&gt;e.g.
+我們常常會需要檢查使用者登入的帳密等等，我們來做一個檢查器吧&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;5b86e30b-dff7-4de2-9574-6c64b64a6050&quot; data-name=&quot;ocp-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;5b86e30b-dff7-4de2-9574-6c64b64a6050&quot; data-name=&quot;ocp-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/abada6874d79516946038fab2ca7e395.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/66cfe3ac77321120241f1dd5efae8db8.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;但假如今天客戶想要增加 Email、Phone Number、Device Mac 等等的格式檢查，那我們必須修改到 Validator class 的程式碼，這樣會影響到其他程式碼，打破了 Open-Closed Principle，對於擴充開放，對於修改封閉，那我們可以怎麼改進，如下&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;3d58fbea-b856-4333-bf41-7b6d5f89cf3d&quot; data-name=&quot;ocp-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;3d58fbea-b856-4333-bf41-7b6d5f89cf3d&quot; data-name=&quot;ocp-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/4781d9bdbc57915e0e38e99bdee48dc6.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/21cf84cbe4b4c0790e62c9025e37ef9c.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;如此要新增 Email、Phone Number、Device Mac 格式檢查，我們只需要新增相對應的檢查器即可 EmailValidator、PhoneNumberValidator 及 DeviceMacValidator，既不會影響其他程式碼(對修改封閉)，也容易擴充新的檢查器(對擴充開放)&lt;/p&gt;
+
+&lt;h3 id=&quot;liskov-substitution-principle-lsp-里氏替換原則&quot;&gt;Liskov Substitution Principle (LSP) 里氏替換原則&lt;/h3&gt;
+
+&lt;p&gt;程式中的物件應該是可以在不改變程式正確性的前提下被它的子類所替換的&lt;/p&gt;
+
+&lt;p&gt;e.g. 我們需要計算正方形及長方形的面積&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;462bc33e-0a7c-4190-b5a2-0db57850de66&quot; data-name=&quot;lsp-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;462bc33e-0a7c-4190-b5a2-0db57850de66&quot; data-name=&quot;lsp-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/b4cc5cbc43afc9239a63e568ea7581ed.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/09845484c41ce34c42edd8f096550089.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;上面的例子我們將正方形繼承長方形，但正方形的 getArea() 卻不符合長方形的結果，這就打破了 LSP。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;增加程式碼的健全度，在使用不同的子類別的時候，可以大幅度的保證彼此之間的相容性。只要父類別可以使用，基本上子類別也可以使用&lt;/li&gt;
+  &lt;li&gt;子類別如果要新增功能，獨立在父類別的功能之外，才不會在搬移到其他子類別的時候發生奇怪的問題，也可以將功能切分乾淨，區分職責&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;interface-segregation-principle-isp-介面隔離原則&quot;&gt;Interface Segregation Principle (ISP) 介面隔離原則&lt;/h3&gt;
+
+&lt;p&gt;多個特定客戶端介面要好於一個寬泛用途的介面&lt;/p&gt;
+
+&lt;p&gt;e.g.
+今天需要設計如何讓使用者操作車子&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;c4f1f0e4-a2f8-4784-aff2-db45a4b63205&quot; data-name=&quot;isp-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;c4f1f0e4-a2f8-4784-aff2-db45a4b63205&quot; data-name=&quot;isp-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/5be469e13f08dcd903d165f74649c9ce.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/68390dc1d479837df0fe70d2057d8c97.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;工程師可以開啟 DebugMode, 但駕駛使用者不應該可以開啟 DebugMode，因此我們來改變程式碼將 enableDebugMode() 隔離成獨立介面吧!&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;926dc557-ddc1-4cb3-b151-c462951032f9&quot; data-name=&quot;isp-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;926dc557-ddc1-4cb3-b151-c462951032f9&quot; data-name=&quot;isp-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/0a935483e1713954181eb0b8ad4c71ca.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/5e8adc0ccfcde8a411a555fc40f960e9.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;如此就只有工程師能進入 DebugMode&lt;/p&gt;
+
+&lt;h3 id=&quot;dependency-inversion-principle-dip-依賴反向原則&quot;&gt;Dependency Inversion Principle (DIP) 依賴反向原則&lt;/h3&gt;
+
+&lt;p&gt;高階模組不應該依賴於低階模組，兩者都應該依賴抽象，
+抽象不應該依賴細節，細節應該依賴抽象。&lt;/p&gt;
+
+&lt;p&gt;e.g. 設計一個能不同房間加入不同 IoT 設備的系統，可以新增刪除房間，例如客廳有智慧音箱、溫度控制器，廚房有煙霧偵測器等…&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;9f9963cb-0306-48db-bb54-4b5fa79f89c4&quot; data-name=&quot;dip-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;9f9963cb-0306-48db-bb54-4b5fa79f89c4&quot; data-name=&quot;dip-1&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/f2ec088e47cf7d24bc89ee7ef9f82fc5.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/ae27a0ba9c9bac8489d15c9f032d620b.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;如果今天 SQLite 因某些問題(速度過慢等等…)因素，導致我們必須換成 CoreData 或其他 Database 呢?
+你會發現我們無法抽換，但如果依賴於抽象編寫，程式碼就會非常好抽換及測試，下面讓我們修改一下程式碼&lt;/p&gt;
+
+&lt;ul class=&quot;tab&quot; data-tab=&quot;56bab935-dd55-49da-be13-ec2ccf49ca6b&quot; data-name=&quot;dip-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+          &lt;a href=&quot;#&quot;&gt;Swift &lt;/a&gt;
+      &lt;/li&gt;
+  
+      &lt;li&gt;
+          &lt;a href=&quot;#&quot;&gt;Kotlin &lt;/a&gt;
+      &lt;/li&gt;
+  
+&lt;/ul&gt;
+&lt;ul class=&quot;tab-content&quot; id=&quot;56bab935-dd55-49da-be13-ec2ccf49ca6b&quot; data-name=&quot;dip-2&quot;&gt;
+  
+      &lt;li class=&quot;active&quot;&gt;
+&lt;script src=&quot;https://gist.github.com/a6483dc7bb915e331dfdc1bac3f9e4da.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+      &lt;li&gt;
+&lt;script src=&quot;https://gist.github.com/217e20c99e2528576d13ed36df60a0ab.js&quot;&gt; &lt;/script&gt;
+
+&lt;/li&gt;
+  
+&lt;/ul&gt;
+
+&lt;p&gt;抽象 - interface, protocol, abstract class&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;依賴於抽象可以使我們的程式碼更加有彈性, 也更好抽換依賴物件&lt;/li&gt;
+  &lt;li&gt;養成多寫一層抽象成能使代碼更好維護、測試&lt;/li&gt;
+  &lt;li&gt;抽象層能使我們非常容易的製作假物件快速測試程式邏輯&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;總結&quot;&gt;總結&lt;/h2&gt;
+
+&lt;p&gt;Design Principle 是物件導向程式設計及 Design Pattern 的核心，其實這些核心技術都是通用的，只要學好核心技術，學習其他語言或設計架構都會變得非常快
+下一篇要來介紹 Design Pattern 的種類有哪些&lt;/p&gt;
+
+&lt;p&gt;今天是 2022 除夕夜，新的一年祝大家都能夠順利達成目標，朝夢想邁進!&lt;/p&gt;
+
+&lt;h2 id=&quot;參考&quot;&gt;參考&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789867794529&quot;&gt;Head First Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.tenlong.com.tw/products/9789866761799&quot;&gt;大話設計模式&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/advanced-design-patterns-design-principles/what-are-design-principles?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Advanced Design Patterns: Design Principles&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/programming-foundations-design-patterns-2/trying-interfaces?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Programming Foundations: Design Patterns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/learning/design-patterns-creational/think-about-how-you-create-objects?autoAdvance=true&amp;amp;autoSkip=false&amp;amp;autoplay=true&amp;amp;resume=true&quot;&gt;Design Patterns: Creational&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Nick Huang</name></author><category term="Design Pattern" /><category term="Design Principle" /><category term="SOLID" /><summary type="html">學習程式設計共通核心技術，這些共通技術能使我們很快學會另一門程式語言及框架技術</summary></entry><entry><title type="html">搞懂 P2P 技術 (3) - WebRTC x AWS x KVS</title><link href="https://nickhuangcyh.github.io/blog/p2p/aws/p2p-tech-3-webrtc-kvs/" rel="alternate" type="text/html" title="搞懂 P2P 技術 (3) - WebRTC x AWS x KVS" /><published>2022-01-04T15:13:00+00:00</published><updated>2022-01-04T15:13:00+00:00</updated><id>https://nickhuangcyh.github.io/blog/p2p/aws/p2p-tech-3-webrtc-kvs</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/p2p/aws/p2p-tech-3-webrtc-kvs/">&lt;h2 id=&quot;webrtc&quot;&gt;WebRTC&lt;/h2&gt;
+
+&lt;p&gt;全名 Web Real-Time Communication，是一個支援網頁瀏覽器進行即時語音對話或影片對話的 API&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/WebRTC&quot;&gt;WebRTC Wiki&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;WebRTC 的底層就是使用 ICE 來進行 P2P 打洞&lt;/p&gt;
+
+&lt;h2 id=&quot;signaling-server&quot;&gt;Signaling Server&lt;/h2&gt;
+
+&lt;p&gt;信令伺服器，用來交換雙方的 SDP 及 Ice candidate 來完成 P2P 打洞&lt;/p&gt;
+
+&lt;h3 id=&quot;實作-signaling-server&quot;&gt;實作 Signaling Server&lt;/h3&gt;
+
+&lt;p&gt;WebRTC 沒有明確定義如何實作 Signaling Server，主要原因在於如果雙方一開始就知道對方的資訊，那其實就不需要 Signaling Server 來交換資訊&lt;/p&gt;
+
+&lt;p&gt;實作一個 Signaling Server 方式有很多種，可以用 HTTP 協議也可以用 WebSocket 協議，只要能順利將雙方的資訊做交換即可&lt;/p&gt;
+
+&lt;h2 id=&quot;sdp-session-description-protocol&quot;&gt;SDP (Session Description Protocol)&lt;/h2&gt;
+
+&lt;p&gt;會話描述協議（Session Description Protocol 或簡寫 SDP）描述的是流媒體的初始化參數。此協議由 IETF 發表為 &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc2327&quot;&gt;RFC 2327&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;sdp-格式&quot;&gt;SDP 格式&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+&lt;span class=&quot;nv&quot;&gt;o&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;mhandley 2890844526 2890842807 IN IP4 126.16.64.4
+&lt;span class=&quot;nv&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;SDP Seminar
+&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;A Seminar on the session description protocol
+&lt;span class=&quot;nv&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps
+&lt;span class=&quot;nv&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;mjh@isi.edu &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Mark Handley&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;IN IP4 224.2.17.12/127
+&lt;span class=&quot;nv&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2873397496 2873404696
+&lt;span class=&quot;nv&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;recvonly
+&lt;span class=&quot;nv&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;audio 49170 RTP/AVP 0
+&lt;span class=&quot;nv&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;video 51372 RTP/AVP 31
+&lt;span class=&quot;nv&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;application 32416 udp wb
+&lt;span class=&quot;nv&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;orient:portrait
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;v=協議版本&lt;/li&gt;
+  &lt;li&gt;o=發起者的 Session、Session ID 及 Session 版本&lt;/li&gt;
+  &lt;li&gt;s=Session 名字&lt;/li&gt;
+  &lt;li&gt;i=Session 資訊&lt;/li&gt;
+  &lt;li&gt;u=有關會議資訊的 url&lt;/li&gt;
+  &lt;li&gt;e=Email&lt;/li&gt;
+  &lt;li&gt;p=手機號碼&lt;/li&gt;
+  &lt;li&gt;c=連線資訊&lt;/li&gt;
+  &lt;li&gt;t = Session 活動時間&lt;/li&gt;
+  &lt;li&gt;m = 媒體資訊 ((media) (port) (transport) (fmt list))&lt;/li&gt;
+  &lt;li&gt;a = 媒體屬性&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;ice-candidate&quot;&gt;Ice Candidate&lt;/h2&gt;
+
+&lt;p&gt;Ice Candidate 描述 WebRTC 能與 遠程設備通訊所需的協議和路由，啟動 WebRTC P2P 後，通常會在連接的每一端提供多個 IceCandidate，直到絕定最佳線路達成為止．&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;sdpMLineIndex&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;sdpMid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;&quot;candidate&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;a=candidate:2999745851 1 udp 2113937151 192.168.56.1 51411 typ host generation 0&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;webrtc-flow&quot;&gt;WebRTC Flow&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_webrtc.png&quot; alt=&quot;p2p_webrtc&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;雙方 Peer 先連上 Signaling Server&lt;/li&gt;
+  &lt;li&gt;PeerA 取得自身 SDP 並呼叫 setLocalDescription&lt;/li&gt;
+  &lt;li&gt;PeerA 將 SDP 傳給 Signaling Server&lt;/li&gt;
+  &lt;li&gt;Signaling Server 將 PeerA 的 SDP 送給 PeerB&lt;/li&gt;
+  &lt;li&gt;PeerB 呼叫 setRemoteDescription 將 PeerA 的 SDP 寫入&lt;/li&gt;
+  &lt;li&gt;PeerB 取得自身 SDP 並呼叫 setLocalDescription&lt;/li&gt;
+  &lt;li&gt;PeerB 將 SDP 傳給 Signaling Server&lt;/li&gt;
+  &lt;li&gt;Signaling Server 將 PeerB 的 SDP 送給 PeerA&lt;/li&gt;
+  &lt;li&gt;PeerA 呼叫 setRemoteDescription 將 PeerB 的 SDP 寫入&lt;/li&gt;
+  &lt;li&gt;PeerA 向 Stun server 詢問 public IP&lt;/li&gt;
+  &lt;li&gt;Stun server 回應 public IP&lt;/li&gt;
+  &lt;li&gt;PeerA 向 TURN server 詢問 relay 資訊 (relay ip/port)&lt;/li&gt;
+  &lt;li&gt;TURN server 回應 relay 資訊&lt;/li&gt;
+  &lt;li&gt;PeerA 將 Ice candidates 傳給 Signaling Server&lt;/li&gt;
+  &lt;li&gt;Signaling Server 將 PeerA 的 Ice candidates 送給 PeerB&lt;/li&gt;
+  &lt;li&gt;PeerB 呼叫 setRemoteIceCandidate 將 PeerA 的 Ice candidates 寫入&lt;/li&gt;
+  &lt;li&gt;PeerB 向 Stun server 詢問 public IP&lt;/li&gt;
+  &lt;li&gt;Stun server 回應 public IP&lt;/li&gt;
+  &lt;li&gt;PeerB 向 TURN server 詢問 relay 資訊 (relay ip/port)&lt;/li&gt;
+  &lt;li&gt;TURN server 回應 relay 資訊&lt;/li&gt;
+  &lt;li&gt;PeerB 將 Ice candidates 傳給 Signaling Server&lt;/li&gt;
+  &lt;li&gt;Signaling Server 將 PeerB 的 Ice candidates 送給 PeerA&lt;/li&gt;
+  &lt;li&gt;PeerA 呼叫 setRemoteIceCandidate 將 PeerB 的 Ice candidates 寫入&lt;/li&gt;
+  &lt;li&gt;P2P 通道建立完成&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;aws-kvs-amazon-kinesis-video-streams&quot;&gt;AWS KVS (Amazon Kinesis Video Streams)&lt;/h2&gt;
+
+&lt;p&gt;Amazon Kinesis Video Streams 以全受管功能提供符合標準的 WebRTC 實作。您可以使用 Amazon Kinesis Video Streams and WebRTC 安全地即時串流媒體，或在任何攝影機 IoT 裝置與符合 WebRTC 標準的行動或 Web 播放器之間，執行雙向音訊或視訊互動。因為是全受管功能，您不需要建置、執行或擴展任何與 WebRTC 相關的雲端基礎設施，例如訊號或媒體轉送伺服器，即可在應用程式和裝置之間安全地串流媒體。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;簡單來說 KVS 就是幫你把 STUN, TURN, Signaling Server 加密權限驗證等等都實作了，WebRTC 的部分跟 KVS 是完全獨立的，你也可以選擇自己架設 STUN, TURN, Signaling Server 搭配 Google WebRTC 也能成功串流．&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;KVS 的 Signaling server 是用 WebSocket 去實作的&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;注意: WebSocket 與 Socket.IO 是不是一樣的，Socket.IO 是根據 Websocket 協議去實作，Socket.IO 有自己的通訊格式，請不要拿 Socket.IO 套件去串接 KVS，會失敗，有興趣可以參考這篇 &lt;a href=&quot;https://leesonhsu.blogspot.com/2018/07/socketwebsocketsocketio.html&quot;&gt;【筆記】Socket，Websocket，Socket.io 的差異&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;成果&quot;&gt;成果&lt;/h2&gt;
+
+&lt;p&gt;理解這些 P2P 相關的知識，我們就可以很清楚的實作每一步驟，出錯時也能清楚哪一部分出錯，甚至是替換 Stun / TURN / signaling server 都沒問題，下面貼一下成果圖&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/blog/assets/images/ios_webrtc.png&quot;&gt;&lt;img src=&quot;/blog/assets/images/ios_webrtc.png&quot; alt=&quot;ios_webrtc&quot; /&gt;&lt;/a&gt;
+&lt;a href=&quot;/blog/assets/images/android_webrtc.png&quot;&gt;&lt;img src=&quot;/blog/assets/images/android_webrtc.png&quot; alt=&quot;android_webrtc&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;踩雷補充&quot;&gt;踩雷補充&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;在串接 AWS KVS 時，AWS Android 的 sample code 是使用 tyrus 套件連 signaling server，但此套件在舊版有一些 SSL 問題有機會失敗，所以我把 tyrus 換成 okhttp 去連 signaling server，但一直連不上 403 Forbidden，iOS 用 starscream 連線正常，後來比對兩平台 URL 發現，Android 的會多做一次 url encode，在 tyrus 沒問題，但在 okhttp 上會有問題 (解法請參考 : &lt;a href=&quot;https://github.com/awslabs/amazon-kinesis-video-streams-webrtc-sdk-android/issues/74&quot;&gt;https://github.com/awslabs/amazon-kinesis-video-streams-webrtc-sdk-android/issues/74&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;總結&quot;&gt;總結&lt;/h2&gt;
+
+&lt;p&gt;P2P 的基本觀念大致就到這邊，如果想要更深入的理解 P2P 的朋友，可以看參考資源欄中的文章，或直接看 RFC ，裡面會說到每個協議的格式細節．&lt;/p&gt;
+
+&lt;h2 id=&quot;參考資源&quot;&gt;參考資源&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/zh-TW/docs/Web/API/WebRTC_API&quot;&gt;WebRTC API&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/WebRTC&quot;&gt;WebRTC Wiki&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/%E4%BC%9A%E8%AF%9D%E6%8F%8F%E8%BF%B0%E5%8D%8F%E8%AE%AE&quot;&gt;SDP Wiki&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate&quot;&gt;RTCIceCandidate&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.aws.amazon.com/zh_tw/kinesisvideostreams-webrtc-dg/latest/devguide/what-is-kvswebrtc.html&quot;&gt;Amazon Kinesis Video Streams for WebRTC&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.52im.net/thread-50-1-1.html&quot;&gt;《P2P 技术详解》系列文章&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.flaticon.com/&quot;&gt;flaticon&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Nick Huang</name></author><category term="P2P" /><category term="AWS" /><category term="iOS" /><category term="Android" /><category term="WebRTC" /><category term="KVS" /><summary type="html">WebRTC x AWS x KVS</summary></entry><entry><title type="html">搞懂 P2P 技術 (2) - STUN x TURN x ICE</title><link href="https://nickhuangcyh.github.io/blog/p2p/p2p-tech-2-stun-turn-ice/" rel="alternate" type="text/html" title="搞懂 P2P 技術 (2) - STUN x TURN x ICE" /><published>2022-01-04T07:09:00+00:00</published><updated>2022-01-04T07:09:00+00:00</updated><id>https://nickhuangcyh.github.io/blog/p2p/p2p-tech-2-stun-turn-ice</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/p2p/p2p-tech-2-stun-turn-ice/">&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;上一篇介紹完中心化、去中心化、分佈式網路以及 IPv4、NAT、NAT 類型，但我們依舊還有些問題未解決&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A, B 兩端要如何知道彼此的內部網路 IP 及外部網路 IP (STUN)&lt;/li&gt;
+  &lt;li&gt;上篇有提到 NAT 類型如果是對稱型時，會無法打通 P2P，當遇到此情形時該 (TURN)&lt;/li&gt;
+  &lt;li&gt;有沒有一種框架整合這整個 P2P 流程 (ICE)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;stun&quot;&gt;STUN&lt;/h2&gt;
+
+&lt;p&gt;STUN（Session Traversal Utilities for NAT，NAT 對談穿越應用程式）是一種網路協定，它允許位於 NAT（或多重 NAT）後的客戶端找出自己的公網位址，查出自己位於哪種類型的 NAT 之後以及 NAT 為某一個本地埠所繫結的 Internet 端埠。這些資訊被用來在兩個同時處於 NAT 路由器之後的主機之間建立 UDP 通信。該協定由 RFC 5389 定義。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/STUN&quot;&gt;STUN Wiki&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_stun.png&quot; alt=&quot;p2p_stun&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;turn&quot;&gt;TURN&lt;/h2&gt;
+
+&lt;p&gt;TURN（全名 Traversal Using Relay NAT），是一種資料傳輸協定（data-transfer protocol）。允許在 TCP 或 UDP 的連線上跨越 NAT 或防火牆。&lt;/p&gt;
+
+&lt;p&gt;TURN 是一個 client-server 協定。TURN 的 NAT 穿透方法與 STUN 類似，都是通過取得應用層中的公有位址達到 NAT 穿透。但實現 TURN client 的終端必須在通訊開始前與 TURN server 進行互動，並要求 TURN server 產生”relay port”，也就是 relayed-transport-address。這時 TURN server 會建立 peer，即遠端端點（remote endpoints），開始進行中繼（relay）的動作，TURN client 利用 relay port 將資料傳送至 peer，再由 peer 轉傳到另一方的 TURN client。&lt;/p&gt;
+
+&lt;p&gt;當無法打通 NAT 時，就會需要用 TURN 的方式來解決 NAT 穿透&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/TURN&quot;&gt;TURN Wiki&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_turn.png&quot; alt=&quot;p2p_turn&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;ice&quot;&gt;ICE&lt;/h2&gt;
+
+&lt;p&gt;ICE（Interactive Connectivity Establishment），一種綜合性的 NAT 穿越的技術。&lt;/p&gt;
+
+&lt;p&gt;互動式連接建立是由 IETF 的 MMUSIC 工作組開發出來的一種 framework，可整合各種 NAT 穿透技術，如 STUN、TURN（Traversal Using Relay NAT，中繼 NAT 實現的穿透）、RSIP（Realm Specific IP，特定域 IP）等。該 framework 可以讓 SIP 的客戶端利用各種 NAT 穿透方式打穿遠程的防火牆。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/%E4%BA%92%E5%8B%95%E5%BC%8F%E9%80%A3%E6%8E%A5%E5%BB%BA%E7%AB%8B&quot;&gt;ICE Wiki&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_ice.png&quot; alt=&quot;p2p_ice&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;總結&quot;&gt;總結&lt;/h2&gt;
+
+&lt;p&gt;簡單來說&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;STUN Server 是讓 client 端詢問自身的 Public IP，雙方交換 Public IP 來做 P2P&lt;/li&gt;
+  &lt;li&gt;TURN Server 是當 NAT 穿透失敗時(通常是 Symmetric NAT)的替代方案，透過 TURN server 做資料的轉傳，也稱為 Relay，走 TURN 時 TURN Server 傳輸流量等等就會需要額外費用&lt;/li&gt;
+  &lt;li&gt;ICE 是一種框架，結合了 STUN 及 TURN 等等協議，解決單一協議缺陷的問題，列如遇上 Symmetric NAT 但沒有實作 TURN，雙方就會無法通訊．&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;這篇介紹了 STUN、TURN 及 ICE，下一篇將介紹 Signaling Server, WebRTC 以及 AWS KVS for WebRTC．&lt;/p&gt;
+
+&lt;h2 id=&quot;參考資源&quot;&gt;參考資源&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/STUN&quot;&gt;STUN&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/TURN&quot;&gt;TURN&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/%E4%BA%92%E5%8B%95%E5%BC%8F%E9%80%A3%E6%8E%A5%E5%BB%BA%E7%AB%8B&quot;&gt;ICE&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.52im.net/thread-50-1-1.html&quot;&gt;《P2P 技术详解》系列文章&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.flaticon.com/&quot;&gt;flaticon&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Nick Huang</name></author><category term="P2P" /><category term="iOS" /><category term="Android" /><category term="STUN" /><category term="TURN" /><category term="ICE" /><summary type="html">STUN x TURN x ICE</summary></entry><entry><title type="html">搞懂 P2P 技術 (1) - P2P x IPv4 x NAT</title><link href="https://nickhuangcyh.github.io/blog/p2p/p2p-tech-1-ipv4-nat/" rel="alternate" type="text/html" title="搞懂 P2P 技術 (1) - P2P x IPv4 x NAT" /><published>2022-01-03T15:45:03+00:00</published><updated>2022-01-03T15:45:03+00:00</updated><id>https://nickhuangcyh.github.io/blog/p2p/p2p-tech-1-ipv4-nat</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/p2p/p2p-tech-1-ipv4-nat/">&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;之前工作上遇到需要將自家 IPCam 與 iOS/Android 手機做 P2P 串流影音，研究了許多有關 P2P 的技術，因此想寫一系列有關 P2P 技術的文章．&lt;/p&gt;
+
+&lt;h2 id=&quot;p2p&quot;&gt;P2P&lt;/h2&gt;
+
+&lt;h3 id=&quot;為什麼會需要-p2p&quot;&gt;為什麼會需要 P2P&lt;/h3&gt;
+
+&lt;p&gt;在了解一門技術前，我們先來看看為什麼會需要這門技術，這門技術是為了解決什麼問題&lt;/p&gt;
+
+&lt;h2 id=&quot;centralized-vs-decentralized-vs-distributed&quot;&gt;Centralized vs Decentralized vs Distributed&lt;/h2&gt;
+
+&lt;h3 id=&quot;中心化網路-centralized&quot;&gt;中心化網路 (Centralized)&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_centralized.png&quot; alt=&quot;p2p_centralized&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;所有 client 都連接到同一台 Server，Server 擁有所有 client 的數據訊息&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;可以想成是國家央行發行貨幣，所有人的錢都來自國家央行&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;優點
+    &lt;ul&gt;
+      &lt;li&gt;部署簡單好維護&lt;/li&gt;
+      &lt;li&gt;集中管理數據&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;缺點
+    &lt;ul&gt;
+      &lt;li&gt;安全及隱私風險 (中心 server 遭破解串改，全部都會受影響)&lt;/li&gt;
+      &lt;li&gt;離 Server 較遠的 client 拿資料的時間會更長&lt;/li&gt;
+      &lt;li&gt;server 一但故障，其他 client 都不可使用&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;去中心化網路-decentralized&quot;&gt;去中心化網路 (Decentralized)&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_decentralized.png&quot; alt=&quot;p2p_decentralized&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;顧名思義就是不只有一台 server，會有多台 server ，所以當一台或多台 server 故障時，client 還是可以繼續從其他 server 存取數據&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;可以想成是很多銀行可以存錢領錢，有美銀、高盛、摩根、富國等等銀行，且每家都能互相轉錢&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;優點
+    &lt;ul&gt;
+      &lt;li&gt;比&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;中心化網路&lt;/code&gt;有較高的容錯率 (因為有多個 server)&lt;/li&gt;
+      &lt;li&gt;更好的性能 (在一些用戶多的地區新增節點)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;缺點
+    &lt;ul&gt;
+      &lt;li&gt;安全及隱私風險 (與中心化一樣)&lt;/li&gt;
+      &lt;li&gt;較高維護成本 (系統設計較複雜多變)&lt;/li&gt;
+      &lt;li&gt;較難部署&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;分佈式網路-distributed&quot;&gt;分佈式網路 (Distributed)&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_distributed.png&quot; alt=&quot;p2p_distributed&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;類似 Decentralized ， 沒有唯一的中心 server，用戶間可以共享資料所有權，消除了中心 server 的概念，如此可以避免中心 server 故障導致所有 user 無法使用的問題，internet 就是一個分佈式網路，p2p 也屬於此類&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;可以想成是目前的區塊鏈比特幣，並沒有像央銀銀行的角色，貨幣是由鏈上的所有主機幫你做驗證交易紀錄等等，必須要串改超過 51% 以上的主機才能成功串改資訊，較安全&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;優點
+    &lt;ul&gt;
+      &lt;li&gt;極高的容錯率&lt;/li&gt;
+      &lt;li&gt;資料透明安全，不易遭串改&lt;/li&gt;
+      &lt;li&gt;資源共享&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;缺點
+    &lt;ul&gt;
+      &lt;li&gt;較高維護成本 (系統設計較複雜多變)&lt;/li&gt;
+      &lt;li&gt;較難部署&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;三種網路方式皆有各自優點，可以依照遇到的情況去設計．&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;在 IoT 應用中，假如你要控制家中的 IPCam，就會有以下兩種做法&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;中心化方式為透過 Server 轉發 command 給 IPCam
+    &lt;ul&gt;
+      &lt;li&gt;&lt;img src=&quot;/blog/assets/images/p2p_centralized_connect.png&quot; alt=&quot;p2p_centralized_connect&quot; /&gt;&lt;/li&gt;
+      &lt;li&gt;這種作法的優點在於好部署修改，有新增功能時只要 Server 改完部署，其他設備就可更新支援此功能，缺點就是 Server 只要故障就完全不能控制 IoT 裝置，且 Server 的硬體效能要很好才足以應對龐大的 client，需要每月一筆租 Server 機器及流量的費用&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;分佈式方式為不透過 Server 直接向 IPCam 下達指令
+    &lt;ul&gt;
+      &lt;li&gt;&lt;img src=&quot;/blog/assets/images/p2p_distributed_connect.png&quot; alt=&quot;p2p_distributed_connect&quot; /&gt;&lt;/li&gt;
+      &lt;li&gt;這種作法的優點在於不需要每月一筆租 server 機器及流量的費用，不會有 Server 故障導致無法操作 IoT 裝置的問題，硬體效能也不需要很好，缺點就是部署程式變得複雜，因為不是每個人都會定期更新手機 app 及 IoT Firmware，還有程式碼會變得複雜，需要處理 p2p tunnel 斷線重新 p2p 流程，也叫容易發生斷線重連，e.g. 手機由 4G/5G 環境走到有 Wifi 環境，網卡自動切換成 Wifi 就會導致斷線需重新 p2p．&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;疑問 : 分佈式方式在複雜的 Internet 下，如何讓手機與 IoT 裝置溝通，就是接下來我們要講解 P2P 技術的部分&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;什麼是-p2p-peer-to-peer&quot;&gt;什麼是 P2P (Peer to Peer)&lt;/h2&gt;
+
+&lt;p&gt;P2P 是一種無中心化的技術，每一個 client 既是 client 也是 server，在每台主機皆存在共享的數據，以此降低資料遺失安全性等等的風險．&lt;/p&gt;
+
+&lt;h2 id=&quot;ipv4&quot;&gt;IPv4&lt;/h2&gt;
+
+&lt;p&gt;Internet 能夠如此成功進入人類的生活中，IP 的設計可以說是非常重要的一個基礎，可以把 IP 想成你在 Internet 世界裡的地址，任何人要寄信給你都需要知道你的地址才能與你通信，IPv4 的設計就是希望可以容納大家上網，IPv4 總共有 4 * 8(bits) = 32 bits，大約為 43 億，在當時認為已經非常足夠使用，但如今在 Internet 高速發展下，IPv4 已經不夠用了，所以網路專家一方面尋找 IPv4 替代方案(也就是 IPv6)，一方面研究如何減緩 IPv4 耗盡的問題，於是 NAT 誕生了．&lt;/p&gt;
+
+&lt;h2 id=&quot;nat-network-address-translation&quot;&gt;NAT (Network Address Translation)&lt;/h2&gt;
+
+&lt;p&gt;就如同字面上的意思，他會在私有網域及公有網域之間做將封包的 IP 做轉換，根據 &lt;a href=&quot;https://datatracker.ietf.org/doc/rfc1918/&quot;&gt;RFC1918&lt;/a&gt; 保留了三段 IP 地址給內部網路做使用，10.0.0.0-10.255.255.255；172.16.0.0-172.31.255.255；192.168.0.0-192.168.255.255，這些地址在公有網路上是沒有意義的，且不需像 IANA 做申請，如此就大大增加了 IPv4 環境可以容納的上網裝置，因為一個組織只需要一個公有 IP 即可讓所有內部裝置連上 Internet．&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_nat_1.png&quot; alt=&quot;p2p_nat_1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;但是 NAT 這樣的設計是有缺點的，外部網路主機無法直接與在 NAT 路由器內的內網主機進行連線&lt;/p&gt;
+
+&lt;p&gt;一般沒有 NAT 情況下，Internet 上的兩台主機只要知道彼此 IP 就能進行通訊&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_nat_2.png&quot; alt=&quot;p2p_nat_2&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在有一方於 NAT 情況下，外部網路主機 B 要與內部網路主機 A 通訊，就會遇到 NAT 不知道要將來自 B 的封包轉給哪一台內部主機&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_nat_3.png&quot; alt=&quot;p2p_nat_3&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;除非 A 已經先訪問過 B 主機的情況下，NAT 會將 A 的轉址紀錄在 mapping table 中，之後由 B 發給 A 的封包，NAT 就會透過 mapping table 轉址將封包正確轉發給 A&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_nat_4.png&quot; alt=&quot;p2p_nat_4&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;但如果兩台主機皆在 NAT 下，此時不管是由 A 或 B 發起 (A → B 或 B → A)，都無法連接到對方，因為兩邊的 mapping table 都是空的沒有紀錄&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_nat_5.png&quot; alt=&quot;p2p_nat_5&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;此時就必須要由任一方先發起封包，假設由 A 發起 (1)，此時 A 的 NAT mapping table 會留下 A 的轉換 IP (2)，但封包到了 B 的 NAT 時，因 B 的 NAT mapping table 為空，所以會先失敗 (3)，再來由 B 發起封包給 A (4)，會在 B NAT mapping table 留下 B 的轉換 IP (5)，封包到了 A NAT 後 (6)，因 A 的 NAT mapping table 存在 A 的 IP，所以封包可以順利到達 A (7)，A 在發送封包到 B (8)，此時雙方的 NAT mapping table 皆有紀錄(9, 10)，在 NAT 裡的 Client 就能順利相互通訊，此時 P2P 就成功了，反之亦然&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_nat_6.png&quot; alt=&quot;p2p_nat_6&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;nat-類型&quot;&gt;NAT 類型&lt;/h2&gt;
+
+&lt;h3 id=&quot;full-cone-nat-完全錐型-nat&quot;&gt;Full-cone NAT (完全錐型 NAT)&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;一旦內部位址（iAddr:iPort）對映到外部位址（eAddr:ePort），所有發自 iAddr:iPort 的封包都經由 eAddr:ePort 向外傳送。&lt;/li&gt;
+  &lt;li&gt;任意外部主機都能經由發送封包給 eAddr:ePort 到達 iAddr:iPort。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_full_cone_nat.png&quot; alt=&quot;p2p_full_cone_nat&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;restricted-cone-nat-受限錐型-nat&quot;&gt;Restricted cone NAT (受限錐型 NAT)&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;一旦內部位址（iAddr:iPort）對映到外部位址（eAddr:ePort），所有發自 iAddr:iPort 的封包都經由 eAddr:ePort 向外傳送。&lt;/li&gt;
+  &lt;li&gt;唯 iAddr:iPort 曾經發送封包到外部主機（nAddr:any），外部主機才能經由發送封包給 eAddr:ePort 到達 iAddr:iPort。（註：any 指外部主機源埠不受限制。）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_restricted_cone_nat.png&quot; alt=&quot;p2p_full_cone_nat&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;port-restricted-cone-nat-端口受限錐型-nat&quot;&gt;Port-Restricted cone NAT (端口受限錐型 NAT)&lt;/h3&gt;
+
+&lt;p&gt;類似受限制錐形 NAT（Restricted cone NAT），但是還有埠限制。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;一旦內部位址（iAddr:iPort）對映到外部位址（eAddr:ePort），所有發自 iAddr:iPort 的封包都經由 eAddr:ePort 向外傳送。&lt;/li&gt;
+  &lt;li&gt;在受限圓錐型 NAT 基礎上增加了外部主機源埠必須是固定的。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_port_restricted_cone_nat.png&quot; alt=&quot;p2p_full_cone_nat&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;symmetric-nat-對稱型-nat&quot;&gt;Symmetric NAT (對稱型 NAT)&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;每一個來自相同內部 IP 與埠，到一個特定目的地 IP 和埠的請求，都對映到一個獨特的外部 IP 和埠。
+同一內部 IP 與埠發到不同的目的地和埠的資訊包，都使用不同的對映&lt;/li&gt;
+  &lt;li&gt;只有曾經收到過內部主機資料的外部主機，才能夠把封包發回&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/blog/assets/images/p2p_symmetric_nat.png&quot; alt=&quot;p2p_full_cone_nat&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Symmetric NAT 無法實現 P2P ，原因就在於對稱型每次的請求都會對應到不同的外部 IP 和 Port&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;結論&quot;&gt;結論&lt;/h2&gt;
+
+&lt;p&gt;有關 P2P、IPv4、NAT 就先介紹到此，下一篇會介紹實現 P2P 需要哪些協定工具，STUN、TURN、ICE 是什麼&lt;/p&gt;
+
+&lt;h2 id=&quot;參考資源&quot;&gt;參考資源&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://medium.com/berty-tech/berty-tech-centralized-vs-decentralized-vs-distributed-systems-2e9efd856c2&quot;&gt;Centralized vs Decentralized vs Distributed Systems&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.52im.net/thread-50-1-1.html&quot;&gt;《P2P 技术详解》系列文章&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/%E5%B0%8D%E7%AD%89%E7%B6%B2%E8%B7%AF&quot;&gt;對等網路&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://zh.wikipedia.org/wiki/%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2&quot;&gt;網路位址轉換&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.flaticon.com/&quot;&gt;flaticon&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Nick Huang</name></author><category term="P2P" /><category term="iOS" /><category term="Android" /><category term="IPv4" /><category term="NAT" /><summary type="html">P2P x IPv4 x NAT</summary></entry><entry><title type="html">3D Graphic Engine Tips - 三角形 x UV mapping x Vertices &amp;amp; Indices</title><link href="https://nickhuangcyh.github.io/blog/mobile/3d_graphic_tips/" rel="alternate" type="text/html" title="3D Graphic Engine Tips - 三角形 x UV mapping x Vertices &amp;amp; Indices" /><published>2022-01-02T02:04:00+00:00</published><updated>2022-01-02T02:04:00+00:00</updated><id>https://nickhuangcyh.github.io/blog/mobile/3d_graphic_tips</id><content type="html" xml:base="https://nickhuangcyh.github.io/blog/mobile/3d_graphic_tips/">&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;前陣子在 iOS, Android 上開發 AR 相關的功能，因為本身沒有 3D 繪圖的相關知識，後來仔細研究，終於有一些成果，這篇用來紀錄有關 3D 繪圖的小小知識，希望可以幫助到其他人．&lt;/p&gt;
+
+&lt;h2 id=&quot;3d-圖形世界所有物件都是由小三角形所構成&quot;&gt;3D 圖形世界所有物件都是由小三角形所構成&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://www.researchgate.net/profile/Predrag-Novakovic-2/publication/322096576/figure/fig2/AS:631626539229214@1527602910310/3D-mesh-triangles-with-different-resolution-3D-Modelling-for-programmers-Available-at.png&quot; alt=&quot;3d_mesh&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://www.researchgate.net/figure/3D-mesh-triangles-with-different-resolution-3D-Modelling-for-programmers-Available-at_fig2_322096576&quot;&gt;https://www.researchgate.net/figure/3D-mesh-triangles-with-different-resolution-3D-Modelling-for-programmers-Available-at_fig2_322096576&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;uv-mapping&quot;&gt;UV mapping&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;將 2D 圖像投影到 3D 模型表面進行 Texture 映射的 3D 建模過程&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://upload.wikimedia.org/wikipedia/commons/0/04/UVMapping.png&quot; alt=&quot;uv_mapping&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/UV_mapping&quot;&gt;https://en.wikipedia.org/wiki/UV_mapping&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;以立方體為例，將各面 Texture 壓平為 2D，在映射到 UV 座標中
+UV 座標，U 為橫軸，V 為縱軸，左上為(0,0)，右上為(1,1)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://wiki.povray.org/uploaded/4/48/RefImgBoxmap.gif&quot; alt=&quot;uv_box_coordinate&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://wiki.povray.org/content/Reference:UV_Mapping&quot;&gt;https://wiki.povray.org/content/Reference:UV_Mapping&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;vertices-and-indices&quot;&gt;Vertices and Indices&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://www.oreilly.com/library/view/real-time-3d-graphics/9781788629690/assets/1ccc3e64-684e-4098-b910-505346c4b396.png&quot; alt=&quot;vertices_and_indices&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://www.oreilly.com/library/view/real-time-3d-graphics/9781788629690/0e5b1b24-f1a7-414d-868b-37df694749ad.xhtml&quot;&gt;https://www.oreilly.com/library/view/real-time-3d-graphics/9781788629690/0e5b1b24-f1a7-414d-868b-37df694749ad.xhtml&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;順著頂點標示出頂點的 Index，根據要畫出的三角形，以逆時鐘方向依序填入 Index&lt;/p&gt;
+
+&lt;p&gt;另一種方式可以用&lt;a href=&quot;https://zh.wikipedia.org/wiki/%E5%AE%89%E5%9F%B9%E5%AE%9A%E5%BE%8B&quot;&gt;安培右手定則&lt;/a&gt;，旋轉方向為 index 的順序，大拇指指向方向為面朝向的方位&lt;/p&gt;
+
+&lt;p&gt;因此在 3D 世界要畫出雙面三角形，code 裡的 index 必須為 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[0, 2, 1, 0, 1, 2]&lt;/code&gt;，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[0, 2, 1]&lt;/code&gt; 為正面，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[0, 1, 2]&lt;/code&gt; 為背面&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;https://www.oreilly.com/library/view/real-time-3d-graphics/9781788629690/0e5b1b24-f1a7-414d-868b-37df694749ad.xhtml&quot;&gt;https://www.oreilly.com/library/view/real-time-3d-graphics/9781788629690/0e5b1b24-f1a7-414d-868b-37df694749ad.xhtml&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;總結&quot;&gt;總結&lt;/h2&gt;
+
+&lt;p&gt;不管是在開發 iOS, Android, Web，只要與 3D 相關，3D 遊戲, AR, VR 等等都會用到，是非常實用的觀念!&lt;/p&gt;</content><author><name>Nick Huang</name></author><category term="Mobile" /><category term="iOS" /><category term="Android" /><category term="3D" /><category term="OpenGL" /><category term="ARKit" /><category term="ARCore" /><category term="Sceneform" /><category term="SceneKit" /><summary type="html">寫 3D 繪圖程式必需要知道的知識</summary></entry></feed>
